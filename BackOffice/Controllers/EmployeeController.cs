@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using BackOffice.Model;
 using BackOffice.DBContext;
-using System.Linq;
 using Microsoft.EntityFrameworkCore;
 
 namespace BackOffice.Controllers
@@ -18,8 +17,7 @@ namespace BackOffice.Controllers
         {
             DBContext = dBContext;
         }
-        
-        
+
         public async Task<ActionResult<IEnumerable<Employee>>> Get()
         {
             // var employee = await DBContext.Employee.Include(x=>x.Department).ToListAsync();

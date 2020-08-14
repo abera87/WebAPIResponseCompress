@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO.Compression;
 using System.Linq;
 using System.Threading.Tasks;
 using BackOffice.DBContext;
@@ -7,6 +8,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -39,7 +41,23 @@ namespace BackOffice
                         options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore
                     );
 
-           
+
+            // configure response compression
+            // services.AddResponseCompression();
+            services.AddResponseCompression(options =>
+            {
+                options.Providers.Add<GzipCompressionProvider>();
+                options.EnableForHttps = true;
+                options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(new[]{
+                                "application/xhtml+xml",
+                                "application/atom+xml",
+                                "image/svg+xml"
+                            });
+            });
+            services.Configure<GzipCompressionProviderOptions>(options =>
+            {
+                options.Level = CompressionLevel.Optimal;
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -55,6 +73,9 @@ namespace BackOffice
             app.UseRouting();
 
             app.UseAuthorization();
+
+            // use response compression
+            app.UseResponseCompression();
 
             app.UseEndpoints(endpoints =>
             {
